@@ -743,24 +743,24 @@ Type <span style="color:var(--accent-cyan)">'help'</span> to see available comma
             </div>
         </section>
 
-        <!-- Contact Section -->
+<!-- Contact Section -->
         <section id="contact" style="margin-top: 50px;">
             <div class="section-title">
                 <i class="fa-solid fa-paper-plane"></i> Ping / Envoyer un Message
             </div>
             <div class="contact-box">
-                <form onsubmit="event.preventDefault(); alert('Message envoyé avec succès !');">
+                <form action="https://formspree.io/f/mrpejwyg" method="POST">
                     <div class="form-group">
                         <label>VOTRE NOM / ORGANISATION</label>
-                        <input type="text" class="form-control" placeholder="ex: Enterprise Tech" required>
+                        <input type="text" name="name" class="form-control" placeholder="ex: Enterprise Tech" required>
                     </div>
                     <div class="form-group">
                         <label>VOTRE ADRESSE EMAIL</label>
-                        <input type="email" class="form-control" placeholder="ex: contact@company.com" required>
+                        <input type="email" name="email" class="form-control" placeholder="ex: contact@company.com" required>
                     </div>
                     <div class="form-group">
                         <label>MESSAGE / PACKET DATA</label>
-                        <textarea class="form-control" rows="4" placeholder="Saisissez votre message ici..." required></textarea>
+                        <textarea name="message" class="form-control" rows="4" placeholder="Saisissez votre message ici..." required></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%;">
                         <i class="fa-solid fa-terminal"></i> TRANSMETTRE LE MESSAGE
@@ -768,8 +768,6 @@ Type <span style="color:var(--accent-cyan)">'help'</span> to see available comma
                 </form>
             </div>
         </section>
-
-    </div>
 
     <!-- Footer -->
     <footer>
