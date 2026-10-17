@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oussama Elasri | Technicien Réseaux & Infrastructure</title>
+    <!-- Icons & Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #070a13;
+            --card-bg: rgba(15, 23, 42, 0.85);
+            --accent-cyan: #00f0ff;
+            --accent-green: #00ff87;
+            --accent-purple: #7000ff;
+            --text-main: #f1f5f9;
+            --text-sub: #94a3b8;
+            --border-glow: rgba(0, 240, 255, 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Fira Code', monospace;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Matrix Canvas Background */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            opacity: 0.2;
+        }
+
+        /* Top Bar System Monitor */
+        .system-bar {
+            background: rgba(10, 15, 29, 0.95);
+            border-bottom: 1px solid var(--border-glow);
+            padding: 8px 20px;
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-sub);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-green);
+            margin-right: 6px;
+        }
+
+        /* Header / Hero */
+        header {
+            padding: 50px 20px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+
+        header h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -1px;
+            text-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+        }
+
+        header .subtitle {
+            font-size: 1.2rem;
+            color: var(--accent-green);
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--accent-cyan);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-green);
+            box-shadow: 0 0 20px rgba(0, 255, 135, 0.6);
+            color: #000;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--accent-cyan);
+            border: 1px solid var(--accent-cyan);
+        }
+
+        .btn-outline:hover {
+            background: rgba(0, 240, 255, 0.1);
+            color: #fff;
+        }
+
+        /* Container & Layout */
+        .container {
+            max-width: 1100px;
+            margin: 20px auto 60px;
+            padding: 0 20px;
+        }
+
+        /* Interactive Terminal Card */
+        .terminal-box {
+            background: #020408;
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+
+        .terminal-header {
+            background: #0d1322;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.15);
+            font-size: 0.8rem;
+            color: var(--text-sub);
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+
+        .terminal-body {
+            padding: 15px;
+            min-height: 140px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .terminal-output {
+            color: var(--text-sub);
+            margin-bottom: 10px;
+            white-space: pre-wrap;
+        }
+
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .prompt { color: var(--accent-green); }
+
+        .terminal-input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--accent-cyan);
+            font-size: 0.9rem;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        /* Section Titles */
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            color: #ffffff;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.15);
+            padding-bottom: 10px;
+        }
+
+        .section-title i {
+            color: var(--accent-cyan);
+        }
+
+        /* CV Embedded & Preview Styling */
+        .cv-preview-box {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 240, 255, 0.25);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+        }
+
+        .cv-header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .cv-title h3 {
+            font-size: 1.5rem;
+            color: #fff;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .cv-title p {
+            color: var(--accent-cyan);
+            font-size: 0.95rem;
+            margin-top: 5px;
+        }
+
+        .cv-contacts {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .cv-section-sub {
+            font-size: 1.1rem;
+            color: var(--accent-green);
+            margin: 20px 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cv-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .cv-list li {
+            position: relative;
+            padding-left: 18px;
+            margin-bottom: 8px;
+            font-size: 0.88rem;
+            color: var(--text-sub);
+        }
+
+        .cv-list li::before {
+            content: '>';
+            position: absolute;
+            left: 0;
+            color: var(--accent-cyan);
+        }
+
+        /* Filter Controls */
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            color: var(--text-sub);
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: rgba(0, 240, 255, 0.15);
+            color: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+        }
+
+        /* Grid & Cards */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 22px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+        }
+
+        .card h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            color: #ffffff;
+            font-size: 1.15rem;
+            margin-bottom: 8px;
+        }
+
+        .card p {
+            color: var(--text-sub);
+            font-size: 0.88rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .card-meta {
+            font-size: 0.8rem;
+            color: var(--accent-green);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            background: rgba(0, 240, 255, 0.08);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        /* Skill Chips */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .skill-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 255, 135, 0.15);
+            padding: 15px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.3s;
+        }
+
+        .skill-card:hover {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 15px rgba(0, 255, 135, 0.15);
+        }
+
+        .skill-icon {
+            font-size: 1.5rem;
+            color: var(--accent-green);
+        }
+
+        .skill-info h4 {
+            color: #fff;
+            font-size: 0.95rem;
+        }
+
+        .skill-info span {
+            color: var(--text-sub);
+            font-size: 0.75rem;
+        }
+
+        /* Contact Form */
+        .contact-box {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 8px;
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--accent-cyan);
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            width: 100%;
+            background: #050811;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 4px;
+            padding: 10px;
+            color: #fff;
+            font-size: 0.88rem;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px;
+            border-top: 1px solid rgba(0, 240, 255, 0.15);
+            background: #03050a;
+            color: var(--text-sub);
+            font-size: 0.85rem;
+        }
+
+        .socials {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+        }
+
+        .socials a {
+            color: var(--text-sub);
+            font-size: 1.3rem;
+            transition: 0.3s;
+        }
+
+        .socials a:hover {
+            color: var(--accent-cyan);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Matrix Background Canvas -->
+    <canvas id="matrix-canvas"></canvas>
+
+    <!-- System Bar Status -->
+    <div class="system-bar">
+        <div><span class="status-dot"></span> HOST: elasri.ddns.net [ONLINE]</div>
+        <div>ROLE: TECHNICIEN RÉSEAUX</div>
+        <div>IP: 196.217.138.6</div>
+    </div>
+
+    <!-- Header Section -->
+    <header>
+        <div class="hero-badge"><i class="fa-solid fa-server"></i> INFRASTRUCTURE & CYBERSECURITY</div>
+        <h1>Oussama Elasri</h1>
+        <div class="subtitle">Technicien Réseaux & Infrastructure Digitale</div>
+        
+        <div class="header-actions">
+            <a href="CV_Oussama_Elasri.pdf" download class="btn btn-primary">
+                <i class="fa-solid fa-file-arrow-down"></i> TÉLÉCHARGER LE CV (PDF)
+            </a>
+            <a href="#cv-section" class="btn btn-outline">
+                <i class="fa-solid fa-address-card"></i> VOIR LE CV PRO
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Interactive Terminal Widget -->
+        <div class="terminal-box">
+            <div class="terminal-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span>oussama@elasri-node:~ (bash)</span>
+            </div>
+            <div class="terminal-body">
+                <div class="terminal-output" id="terminal-output">Welcome to Oussama's Terminal Shell v2.4
+Type <span style="color:var(--accent-cyan)">'help'</span> to see available commands (skills, certs, whoami, clear).</div>
+                <div class="terminal-input-line">
+                    <span class="prompt">oussama@elasri:~$</span>
+                    <input type="text" class="terminal-input" id="terminal-input" autofocus placeholder="Tapez une commande ici...">
+                </div>
+            </div>
+        </div>
+
+        <!-- Professional CV Section (Integrated Live) -->
+        <section id="cv-section" style="margin-top: 50px;">
+            <div class="section-title">
+                <i class="fa-solid fa-file-lines"></i> Curriculum Vitae Professionnel
+            </div>
+            
+            <div class="cv-preview-box">
+                <div class="cv-header-info">
+                    <div class="cv-title">
+                        <h3>Oussama Elasri</h3>
+                        <p>Technicien en Infrastructure Numérique & Réseaux</p>
+                    </div>
+                    <div class="cv-contacts">
+                        <span><i class="fa-solid fa-envelope" style="color:var(--accent-cyan)"></i> oussamaelasri88@gmail.com</span>
+                        <span><i class="fa-solid fa-globe" style="color:var(--accent-cyan)"></i> elasri.ddns.net</span>
+                        <span><i class="fa-solid fa-location-dot" style="color:var(--accent-cyan)"></i> Maroc</span>
+                    </div>
+                </div>
+
+                <div class="cv-section-sub"><i class="fa-solid fa-graduation-cap"></i> Formation & Diplômes</div>
+                <ul class="cv-list">
+                    <li><strong>Technicien en Infrastructure Numérique (2ème Année)</strong> — OFPPT / ISTAG (Groupe IDOSR201). Maîtrise des architectures réseaux, routage, switching et administration système.</li>
+                </ul>
+
+                <div class="cv-section-sub"><i class="fa-solid fa-certificate"></i> Certifications Officielles</div>
+                <ul class="cv-list">
+                    <li><strong>Exploring Networking with Cisco Packet Tracer</strong> — Cisco Networking Academy (Janvier 2026).</li>
+                    <li><strong>Introduction to Cybersecurity</strong> — Cisco Networking Academy (Janvier 2026).</li>
+                    <li><strong>Python Essentials 1</strong> — Cisco Networking Academy & OpenEDG Python Institute (Août 2026).</li>
+                    <li><strong>Critical Infrastructure Protection (ICIP)</strong> — OPSWAT Academy (Août 2026).</li>
+                </ul>
+
+                <div class="cv-section-sub"><i class="fa-solid fa-toolbox"></i> Compétences & Savoir-Faire Technique</div>
+                <ul class="cv-list">
+                    <li><strong>Réseaux & Switching :</strong> VLANs, Trunking 802.1Q, STP, Port Security, HSRP, EtherChannel.</li>
+                    <li><strong>Routage :</strong> OSPF, RIPv2, Routage Statique, Inter-VLAN Routing (Router-on-a-Stick).</li>
+                    <li><strong>Systèmes & Virtualisation :</strong> Administration Linux (Ubuntu, Mint), Proxmox VE, Docker.</li>
+                    <li><strong>Sécurité & Automatisation :</strong> Wazuh SIEM, Nmap Network Scanning, Scripts Python & Bash.</li>
+                </ul>
+
+                <div style="margin-top: 25px; text-align: center;">
+                    <a href="CV_Oussama_Elasri.pdf" download class="btn btn-primary">
+                        <i class="fa-solid fa-download"></i> Télécharger la version PDF complète
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section style="margin-top: 50px;">
+            <div class="section-title">
+                <i class="fa-solid fa-layer-group"></i> Domaines d'Expertise
+            </div>
+            <div class="skills-grid">
+                <div class="skill-card">
+                    <i class="fa-solid fa-network-wired skill-icon"></i>
+                    <div class="skill-info">
+                        <h4>Réseaux & Switching</h4>
+                        <span>VLANs, STP, Inter-VLAN, HSRP</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <i class="fa-solid fa-route skill-icon"></i>
+                    <div class="skill-info">
+                        <h4>Routage Dynamique</h4>
+                        <span>OSPF, RIPv2, Static Routes</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <i class="fa-solid fa-terminal skill-icon"></i>
+                    <div class="skill-info">
+                        <h4>Linux & Admin Sys</h4>
+                        <span>Ubuntu, Mint, Shell Scripting</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <i class="fa-solid fa-shield-halved skill-icon"></i>
+                    <div class="skill-info">
+                        <h4>Sécurité & SIEM</h4>
+                        <span>Wazuh, Nmap Scans, Firewalls</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <i class="fa-solid fa-cubes skill-icon"></i>
+                    <div class="skill-info">
+                        <h4>Virtualisation & Docker</h4>
+                        <span>Proxmox VE, Containers LXC/Docker</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <i class="fa-brands fa-python skill-icon"></i>
+                    <div class="skill-info">
+                        <h4>Scripting & Dev</h4>
+                        <span>Python Essentials, Automation</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Certifications Section -->
+        <section style="margin-top: 50px;">
+            <div class="section-title">
+                <i class="fa-solid fa-award"></i> Certifications Accréditées
+            </div>
+            <div class="grid">
+                
+                <div class="card">
+                    <div class="card-meta"><i class="fa-solid fa-check-double"></i> 26 Janvier 2026</div>
+                    <h3>Exploring Networking with Cisco Packet Tracer</h3>
+                    <p>Cisco Networking Academy — Validation des compétences en modélisation et dépannage de topologies réseau.</p>
+                    <div class="tags">
+                        <span class="tag">Cisco</span>
+                        <span class="tag">Packet Tracer</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-meta"><i class="fa-solid fa-check-double"></i> 26 Janvier 2026</div>
+                    <h3>Introduction to Cybersecurity</h3>
+                    <p>Cisco Networking Academy — Maîtrise des principes de sécurité réseau, confidentialité des données et gestion des risques.</p>
+                    <div class="tags">
+                        <span class="tag">Cisco</span>
+                        <span class="tag">Cybersecurity</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-meta"><i class="fa-solid fa-check-double"></i> 19 Août 2026</div>
+                    <h3>Python Essentials 1</h3>
+                    <p>Cisco Networking Academy & OpenEDG Python Institute — Maîtrise des fondamentaux du langage Python et algorithmique.</p>
+                    <div class="tags">
+                        <span class="tag">Python</span>
+                        <span class="tag">OpenEDG</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-meta"><i class="fa-solid fa-check-double"></i> Août 2026</div>
+                    <h3>Critical Infrastructure Protection (ICIP)</h3>
+                    <p>OPSWAT Academy — Sensibilisation à la protection des infrastructures numériques et industrielles critiques.</p>
+                    <div class="tags">
+                        <span class="tag">OPSWAT</span>
+                        <span class="tag">ICS/OT</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Projects Section with Filter -->
+        <section style="margin-top: 50px;">
+            <div class="section-title">
+                <i class="fa-solid fa-diagram-project"></i> Labs & Realisations
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn active" onclick="filterProjects('all')">Tous</button>
+                <button class="filter-btn" onclick="filterProjects('cisco')">Cisco / Packet Tracer</button>
+                <button class="filter-btn" onclick="filterProjects('sec')">Sécurité & SIEM</button>
+                <button class="filter-btn" onclick="filterProjects('auto')">Linux / Scripting</button>
+            </div>
+
+            <div class="grid" id="projects-grid">
+                
+                <div class="card project-card cisco">
+                    <h3>Multi-VLAN & Inter-VLAN Routing</h3>
+                    <p>Architecture d'entreprise sous Packet Tracer avec segmentation VLAN, Trunking 802.1Q et sécurisation des ports (Port Security).</p>
+                    <div class="tags">
+                        <span class="tag">Packet Tracer</span>
+                        <span class="tag">Switching</span>
+                    </div>
+                </div>
+
+                <div class="card project-card cisco">
+                    <h3>Redondance HSRP & EtherChannel</h3>
+                    <p>Configuration de la haute disponibilité avec le protocole HSRP et l'agrégation de bande passante via EtherChannel.</p>
+                    <div class="tags">
+                        <span class="tag">HSRP</span>
+                        <span class="tag">EtherChannel</span>
+                    </div>
+                </div>
+
+                <div class="card project-card sec">
+                    <h3>Déploiement SIEM avec Wazuh</h3>
+                    <p>Installation d'un serveur Wazuh sur VM Proxmox/Ubuntu et supervision centralisée des journaux d'événements Windows/Linux.</p>
+                    <div class="tags">
+                        <span class="tag">Wazuh</span>
+                        <span class="tag">SIEM</span>
+                    </div>
+                </div>
+
+                <div class="card project-card auto">
+                    <h3>Scanner Réseau Nmap & Bot Telegram</h3>
+                    <p>Script Python exécutant des scans Nmap automatiques et envoyant les rapports de vulnérabilités en direct sur Telegram.</p>
+                    <div class="tags">
+                        <span class="tag">Python</span>
+                        <span class="tag">Nmap</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" style="margin-top: 50px;">
+            <div class="section-title">
+                <i class="fa-solid fa-paper-plane"></i> Ping / Envoyer un Message
+            </div>
+            <div class="contact-box">
+                <form onsubmit="event.preventDefault(); alert('Message envoyé avec succès !');">
+                    <div class="form-group">
+                        <label>VOTRE NOM / ORGANISATION</label>
+                        <input type="text" class="form-control" placeholder="ex: Enterprise Tech" required>
+                    </div>
+                    <div class="form-group">
+                        <label>VOTRE ADRESSE EMAIL</label>
+                        <input type="email" class="form-control" placeholder="ex: contact@company.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>MESSAGE / PACKET DATA</label>
+                        <textarea class="form-control" rows="4" placeholder="Saisissez votre message ici..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fa-solid fa-terminal"></i> TRANSMETTRE LE MESSAGE
+                    </button>
+                </form>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>[ HOST: elasri.ddns.net ] &bull; &copy; 2026 Oussama Elasri. Technicien Réseaux.</p>
+        <div class="socials">
+            <a href="https://linkedin.com" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+            <a href="https://github.com" target="_blank"><i class="fa-brands fa-github"></i></a>
+        </div>
+    </footer>
+
+    <!-- JavaScript code -->
+    <script>
+        /* Matrix Rain Animation */
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const chars = ['0', '1'];
+        const fontSize = 14;
+        const columns = Math.floor(canvas.width / fontSize);
+        const drops = Array(columns).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(7, 10, 19, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#00f0ff';
+            ctx.font = fontSize + 'px Fira Code, monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars[Math.floor(Math.random() * chars.length)];
+                const x = i * fontSize;
+                const y = drops[i] * fontSize;
+                ctx.fillText(text, x, y);
+
+                if (y > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 45);
+
+        /* Interactive Terminal Script */
+        const input = document.getElementById('terminal-input');
+        const output = document.getElementById('terminal-output');
+
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const cmd = input.value.trim().toLowerCase();
+                let response = '';
+
+                if (cmd === 'help') {
+                    response = "Commandes disponibles:\n- 'whoami' : À propos de moi\n- 'skills' : Compétences réseaux & sys\n- 'certs'  : Diplômes & Certifications\n- 'clear'  : Effacer l'écran";
+                } else if (cmd === 'whoami') {
+                    response = "Oussama Elasri - Technicien Réseaux & Infrastructure Digitale.\nEtudiant passionné par l'administration réseau, la cybersécurité et l'automatisation.";
+                } else if (cmd === 'skills') {
+                    response = "Cisco Routing & Switching (VLAN, OSPF, HSRP)\nLinux Admin (Ubuntu/Mint)\nSecurity (Wazuh SIEM, Nmap)\nVirtualization (Proxmox VE, Docker)\nScripting (Python, Shell)";
+                } else if (cmd === 'certs') {
+                    response = "1. Cisco: Exploring Networking with Packet Tracer\n2. Cisco: Introduction to Cybersecurity\n3. Cisco/OpenEDG: Python Essentials 1\n4. OPSWAT: Critical Infrastructure Protection";
+                } else if (cmd === 'clear') {
+                    output.innerText = '';
+                    input.value = '';
+                    return;
+                } else if (cmd === '') {
+                    return;
+                } else {
+                    response = "Commande non reconnue: '" + cmd + "'. Tapez 'help' pour la liste.";
+                }
+
+                output.innerText += "\n\noussama@elasri:~$ " + cmd + "\n" + response;
+                input.value = '';
+                output.scrollTop = output.scrollHeight;
+            }
+        });
+
+        /* Project Filtering */
+        function filterProjects(category) {
+            const cards = document.querySelectorAll('.project-card');
+            const btns = document.querySelectorAll('.filter-btn');
+
+            btns.forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            cards.forEach(card => {
+                if (category === 'all' || card.classList.contains(category)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
